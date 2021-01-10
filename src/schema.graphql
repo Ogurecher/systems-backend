@@ -1,0 +1,21 @@
+type Query {
+    tasks: [Task!]!
+    task (id: String!): Task
+}
+
+type Task {
+    id: String!
+    title: String!
+    description: String!
+    maxNumRepeats: Int!
+    taskType: String!
+    questions: [Question!]!
+}
+
+type Question {
+    id: String!
+    question: String!
+    options: [String!]!
+    answers: [String!]!
+    questionType: String!
+}
