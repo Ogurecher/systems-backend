@@ -12,5 +12,6 @@
   "dependencies": {
     "apollo-server-express": "^2.19.1",
     "express": "^4.17.1"
-  }
+  },
+  "devDependencies": {}
 }
