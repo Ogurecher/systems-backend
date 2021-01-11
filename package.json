@@ -13,5 +13,7 @@
     "apollo-server-express": "^2.19.1",
     "express": "^4.17.1"
   },
-  "devDependencies": {}
+  "devDependencies": {
+    "@prisma/cli": "^2.14.0"
+  }
 }

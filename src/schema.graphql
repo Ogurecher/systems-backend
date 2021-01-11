@@ -3,6 +3,11 @@ type Query {
     task (id: String!): Task
 }
 
+type Mutation {
+    createTask(title: String!, description: String!, maxNumRepeats: Int!, taskType: String!): Task!
+    deleteTask(id: String!): Task
+}
+
 type Task {
     id: String!
     title: String!

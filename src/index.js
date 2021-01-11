@@ -3,12 +3,37 @@ const path = require('path');
 const express = require('express');
 const { ApolloServer } = require('apollo-server-express');
 
-const mockData = JSON.parse(fs.readFileSync(path.join(__dirname, 'mock-data.json'), 'utf8'));
+let mockData = JSON.parse(fs.readFileSync(path.join(__dirname, 'mock-data.json'), 'utf8'));
+
+let idCount = mockData.length + 1;
 
 const resolvers = {
     Query: {
         tasks: () => mockData,
         task: (parent, args) => mockData.find(task => task.id === args.id)
+    },
+    Mutation: {
+        createTask: (parent, args) => {
+            const task = {
+                id: `${idCount++}`,
+                title: args.title,
+                description: args.description,
+                maxNumRepeats: args.maxNumRepeats,
+                taskType: args.taskType,
+                questions: []
+            };
+
+            mockData.push(task);
+
+            return task;
+        },
+        deleteTask: (parent, args) => {
+            const task = mockData.find(task => task.id === args.id);
+
+            mockData = mockData.filter(task => task.id !== args.id);
+
+            return task;
+        }
     }
 };
 
