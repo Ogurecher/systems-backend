@@ -4,7 +4,7 @@ type Query {
 }
 
 type Mutation {
-    createTask(title: String!, description: String!, maxNumRepeats: Int!, taskType: String!): Task!
+    createTask(title: String!, description: String!, maxNumRepeats: Int!, taskType: String!, questions: [QuestionInput!]!): Task!
     deleteTask(id: String!): Task
 }
 
@@ -18,6 +18,14 @@ type Task {
 }
 
 type Question {
+    id: String!
+    question: String!
+    options: [String!]!
+    answers: [String!]!
+    questionType: String!
+}
+
+input QuestionInput {
     id: String!
     question: String!
     options: [String!]!

@@ -20,7 +20,7 @@ const resolvers = {
                 description: args.description,
                 maxNumRepeats: args.maxNumRepeats,
                 taskType: args.taskType,
-                questions: []
+                questions: args.questions
             };
 
             mockData.push(task);
