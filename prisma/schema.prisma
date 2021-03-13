@@ -11,7 +11,19 @@ generator client {
 }
 
 model ResearchTemplate {
-    id          Int      @id @default(autoincrement())
-    name        String
-    template    String
+    id              Int                 @id @default(autoincrement())
+    name            String
+    template        String
+    research        Research[]
+}
+
+model Research {
+    id              Int                 @id @default(autoincrement())
+    title           String
+    description     String
+    template        ResearchTemplate    @relation(fields: [templateId], references: [id])
+    templateId      Int
+    dateOpened      DateTime            @default(now())
+    dateClosed      DateTime?
+    status          String              @default("В работе")
 }

@@ -4,18 +4,40 @@ const express = require('express');
 const { ApolloServer } = require('apollo-server-express');
 const { PrismaClient } = require('@prisma/client');
 
+const createGetQuery = (entityName) => {
+    return async (parent, args, context) => {
+        return context.prisma[entityName].findMany();
+    }
+};
+
+const createGetByIdQuery = (entityName) => {
+    return async (parent, args, context) => {
+        return context.prisma[entityName].findUnique({
+            where: {
+                id: args.id
+            }
+        });
+    }
+};
+
+const createDeleteMutation = (entityName) => {
+    return (parent, args, context) => {
+        const entity = context.prisma[entityName].delete({
+            where: {
+                id: args.id
+            }
+        });
+
+        return entity;
+    }
+};
+
 const resolvers = {
     Query: {
-        researchTemplatesList: async (parent, args, context) => {
-            return context.prisma.researchTemplate.findMany();
-        },
-        researchTemplate: async (parent, args, context) => {
-            return context.prisma.researchTemplate.findUnique({
-                where: {
-                    id: args.id
-                }
-            });
-        }
+        researchTemplatesList: createGetQuery('researchTemplate'),
+        researchTemplate:      createGetByIdQuery('researchTemplate'),
+        researchList:          createGetQuery('research'),
+        research:              createGetByIdQuery('research')
     },
     Mutation: {
         createResearchTemplate: (parent, args, context) => {
@@ -28,15 +50,18 @@ const resolvers = {
 
             return researchTemplate;
         },
-        deleteResearchTemplate: (parent, args, context) => {
-            const researchTemplate = context.prisma.researchTemplate.delete({
-                where: {
-                    id: args.id
-                }
-            });
+        deleteResearchTemplate: createDeleteMutation('researchTemplate'),
+        createResearch: (parent, args, context) => {
+            const research = context.prisma.research.create({
+                data: {
+                    title: args.title,
+                    description: args.description,
+                    templateId: args.templateId
+                },
+            })
 
-            return researchTemplate;
-        }
+            return research;
+        },
     }
 };
 

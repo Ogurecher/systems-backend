@@ -1,15 +1,29 @@
 type Query {
     researchTemplatesList: [ResearchTemplate!]!
-    researchTemplate (id: Int!): ResearchTemplate
+    researchTemplate(id: Int!): ResearchTemplate
+
+    researchList: [Research!]!
+    research(id: Int!): Research
 }
 
 type Mutation {
     createResearchTemplate(name: String!, template: String!): ResearchTemplate!
     deleteResearchTemplate(id: Int!): ResearchTemplate
+
+    createResearch(title: String!, description: String!, templateId: Int!): Research
+    deleteResearch(id: Int!): Research
 }
 
 type ResearchTemplate {
     id: Int!
     name: String!
     template: String!
+}
+
+type Research {
+    id: Int!
+    title: String!
+    description: String!
+    templateId: Int!
+    status: String!
 }
