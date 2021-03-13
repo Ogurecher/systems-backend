@@ -2,41 +2,52 @@ const fs = require('fs');
 const path = require('path');
 const express = require('express');
 const { ApolloServer } = require('apollo-server-express');
-
-let mockData = JSON.parse(fs.readFileSync(path.join(__dirname, 'mock-data.json'), 'utf8'));
-
-let idCount = mockData.length + 1;
+const { PrismaClient } = require('@prisma/client');
 
 const resolvers = {
     Query: {
-        researchTemplatesList: () => mockData,
-        researchTemplate: (parent, args) => mockData.find(researchTemplate => researchTemplate.id === args.id)
+        researchTemplatesList: async (parent, args, context) => {
+            return context.prisma.researchTemplate.findMany();
+        },
+        researchTemplate: async (parent, args, context) => {
+            return context.prisma.researchTemplate.findUnique({
+                where: {
+                    id: args.id
+                }
+            });
+        }
     },
     Mutation: {
-        createResearchTemplate: (parent, args) => {
-            const researchTemplate = {
-                id: idCount++,
-                name: args.name,
-                template: args.template
-            };
-
-            mockData.push(researchTemplate);
+        createResearchTemplate: (parent, args, context) => {
+            const researchTemplate = context.prisma.researchTemplate.create({
+                data: {
+                    name: args.name,
+                    template: args.template
+                },
+            })
 
             return researchTemplate;
         },
-        deleteResearchTemplate: (parent, args) => {
-            const researchTemplate = mockData.find(researchTemplate => researchTemplate.id === args.id);
-
-            mockData = mockData.filter(researchTemplate => researchTemplate.id !== args.id);
+        deleteResearchTemplate: (parent, args, context) => {
+            const researchTemplate = context.prisma.researchTemplate.delete({
+                where: {
+                    id: args.id
+                }
+            });
 
             return researchTemplate;
         }
     }
 };
 
+const prisma = new PrismaClient();
+
 const server = new ApolloServer({
     typeDefs: fs.readFileSync(path.join(__dirname, 'schema.graphql'), 'utf8'),
-    resolvers
+    resolvers,
+    context: {
+        prisma
+    }
 });
 
 const app = express();
