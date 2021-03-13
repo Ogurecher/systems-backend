@@ -9,30 +9,27 @@ let idCount = mockData.length + 1;
 
 const resolvers = {
     Query: {
-        tasks: () => mockData,
-        task: (parent, args) => mockData.find(task => task.id === args.id)
+        researchTemplatesList: () => mockData,
+        researchTemplate: (parent, args) => mockData.find(researchTemplate => researchTemplate.id === args.id)
     },
     Mutation: {
-        createTask: (parent, args) => {
-            const task = {
-                id: `${idCount++}`,
-                title: args.title,
-                description: args.description,
-                maxNumRepeats: args.maxNumRepeats,
-                taskType: args.taskType,
-                questions: args.questions
+        createResearchTemplate: (parent, args) => {
+            const researchTemplate = {
+                id: idCount++,
+                name: args.name,
+                template: args.template
             };
 
-            mockData.push(task);
+            mockData.push(researchTemplate);
 
-            return task;
+            return researchTemplate;
         },
-        deleteTask: (parent, args) => {
-            const task = mockData.find(task => task.id === args.id);
+        deleteResearchTemplate: (parent, args) => {
+            const researchTemplate = mockData.find(researchTemplate => researchTemplate.id === args.id);
 
-            mockData = mockData.filter(task => task.id !== args.id);
+            mockData = mockData.filter(researchTemplate => researchTemplate.id !== args.id);
 
-            return task;
+            return researchTemplate;
         }
     }
 };

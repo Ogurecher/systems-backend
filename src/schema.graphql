@@ -1,34 +1,15 @@
 type Query {
-    tasks: [Task!]!
-    task (id: String!): Task
+    researchTemplatesList: [ResearchTemplate!]!
+    researchTemplate (id: Int!): ResearchTemplate
 }
 
 type Mutation {
-    createTask(title: String!, description: String!, maxNumRepeats: Int!, taskType: String!, questions: [QuestionInput!]!): Task!
-    deleteTask(id: String!): Task
+    createResearchTemplate(name: String!, template: String!): ResearchTemplate!
+    deleteResearchTemplate(id: Int!): ResearchTemplate
 }
 
-type Task {
-    id: String!
-    title: String!
-    description: String!
-    maxNumRepeats: Int!
-    taskType: String!
-    questions: [Question!]!
-}
-
-type Question {
-    id: String!
-    question: String!
-    options: [String!]!
-    answers: [String!]!
-    questionType: String!
-}
-
-input QuestionInput {
-    id: String!
-    question: String!
-    options: [String!]!
-    answers: [String!]!
-    questionType: String!
+type ResearchTemplate {
+    id: Int!
+    name: String!
+    template: String!
 }
