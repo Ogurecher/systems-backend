@@ -37,7 +37,9 @@ const resolvers = {
         researchTemplatesList: createGetQuery('researchTemplate'),
         researchTemplate:      createGetByIdQuery('researchTemplate'),
         researchList:          createGetQuery('research'),
-        research:              createGetByIdQuery('research')
+        research:              createGetByIdQuery('research'),
+        studentList:           createGetQuery('student'),
+        student:               createGetByIdQuery('student')
     },
     Mutation: {
         createResearchTemplate: (parent, args, context) => {
@@ -62,6 +64,17 @@ const resolvers = {
 
             return research;
         },
+        deleteResearch: createDeleteMutation('research'),
+        createStudent: (parent, args, context) => {
+            const student = context.prisma.student.create({
+                data: {
+                    name: args.name
+                },
+            })
+
+            return student;
+        },
+        deleteStudent: createDeleteMutation('student')
     }
 };
 

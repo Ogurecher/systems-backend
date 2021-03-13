@@ -27,3 +27,8 @@ model Research {
     dateClosed      DateTime?
     status          String              @default("В работе")
 }
+
+model Student {
+    id              Int                 @id @default(autoincrement())
+    name            String
+}
