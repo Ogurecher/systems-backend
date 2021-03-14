@@ -1,34 +1,69 @@
 type Query {
-    tasks: [Task!]!
-    task (id: String!): Task
+    researchTemplateList: [ResearchTemplate!]!
+    researchTemplate(id: Int!): ResearchTemplate
+
+    researchList: [Research!]!
+    research(id: Int!): Research
+
+    studentList: [Student!]!
+    student(id: Int!): Student!
+
+    researchSuggestionsList: [ResearchSuggestions!]!
+    researchSuggestions(researchId: Int!): [ResearchSuggestions!]!
+
+    researchResultsList: [ResearchResults!]!
 }
 
 type Mutation {
-    createTask(title: String!, description: String!, maxNumRepeats: Int!, taskType: String!, questions: [QuestionInput!]!): Task!
-    deleteTask(id: String!): Task
+    createResearchTemplate(name: String!, template: String!): ResearchTemplate!
+    deleteResearchTemplate(id: Int!): ResearchTemplate
+
+    createResearch(title: String!, description: String!, templateId: Int!, performers: [Int!]!): Research!
+    deleteResearch(id: Int!): Research
+
+    createStudent(name: String!): Student!
+    deleteStudent(id: Int!): Student
+
+    addAnswer(studentId: Int!, researchId: Int!, answer: String!): ResearchSuggestions
 }
 
-type Task {
-    id: String!
+type ResearchTemplate {
+    id: Int!
+    name: String!
+    template: String!
+}
+
+type Research {
+    id: Int!
     title: String!
     description: String!
-    maxNumRepeats: Int!
-    taskType: String!
-    questions: [Question!]!
+    template: ResearchTemplate!
+    templateId: Int!
+    performers: [Int!]!
+    status: String!
+    answers: [ResearchSuggestions!]!
 }
 
-type Question {
-    id: String!
-    question: String!
-    options: [String!]!
-    answers: [String!]!
-    questionType: String!
+type Student {
+    id: Int!
+    name: String!
+    answers: [ResearchSuggestions!]!
 }
 
-input QuestionInput {
-    id: String!
-    question: String!
-    options: [String!]!
-    answers: [String!]!
-    questionType: String!
+type ResearchSuggestions {
+    studentId: Int!
+    student: Student!
+    researchId: Int!
+    research: Research!
+    answer: String
+}
+
+type ResearchResults {
+    researchTitle: String!
+    templateName: String!
+    dateOpened: Float!
+    dateClosed: Float
+    completedResearch: Int!
+    totalResearch: Int!
+    status: String!
 }

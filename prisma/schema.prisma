@@ -1,0 +1,45 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+datasource db {
+    provider = "sqlite"
+    url      = "file:./dev.db"
+}
+
+generator client {
+    provider = "prisma-client-js"
+}
+
+model ResearchTemplate {
+    id              Int                 @id @default(autoincrement())
+    name            String
+    template        String
+    research        Research[]
+}
+
+model Research {
+    id              Int                 @id @default(autoincrement())
+    title           String
+    description     String
+    template        ResearchTemplate    @relation(fields: [templateId], references: [id])
+    templateId      Int
+    dateOpened      Int
+    dateClosed      Int?
+    status          String              @default("В работе")
+    answers         ResearchSuggestions[]
+}
+
+model Student {
+    id              Int                 @id @default(autoincrement())
+    name            String
+    answers         ResearchSuggestions[]
+}
+
+model ResearchSuggestions {
+    @@id([studentId, researchId])
+    student         Student             @relation(fields: [studentId], references: [id])
+    studentId       Int
+    research        Research            @relation(fields: [researchId], references: [id])
+    researchId      Int
+    answer          String?
+}
