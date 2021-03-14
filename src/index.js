@@ -47,7 +47,40 @@ const resolvers = {
                 }
             });
         },
-        researchSuggestionsList: createGetQuery('researchSuggestions')
+        researchSuggestionsList: createGetQuery('researchSuggestions'),
+        researchResultsList:    async (parent, args, context) => {
+            const researchList = await context.prisma.research.findMany();
+
+            const results = [];
+
+            for (research of researchList) {
+                const template = await context.prisma.researchTemplate.findUnique({
+                    where: {
+                        id: research.templateId
+                    }
+                });
+
+                const answers = await context.prisma.researchSuggestions.findMany({
+                    where: {
+                        researchId: research.id
+                    }
+                });
+
+                const result = {
+                    researchTitle:     research.title,
+                    templateName:      template.name,
+                    dateOpened:        research.dateOpened,
+                    dateClosed:        research.dateClosed,
+                    completedResearch: answers.filter(item => item.answer !== null).length,
+                    totalResearch:     answers.length,
+                    status:            research.status
+                };
+
+                results.push(result);
+            }
+
+            return results;
+        }
     },
     Mutation: {
         createResearchTemplate: (parent, args, context) => {
@@ -67,6 +100,7 @@ const resolvers = {
                     title: args.title,
                     description: args.description,
                     templateId: args.templateId,
+                    dateOpened: Date.now(),
                     answers: {
                         create: args.performers.map(id => {
                             return { studentId: id }
@@ -95,7 +129,44 @@ const resolvers = {
 
             return student;
         },
-        deleteStudent: createDeleteMutation('student')
+        deleteStudent: createDeleteMutation('student'),
+        addAnswer: async (parent, args, context) => {
+            const answer = await context.prisma.researchSuggestions.update({
+                where: {
+                    studentId_researchId: {
+                        researchId: args.researchId,
+                        studentId: args.studentId
+                    }
+                },
+                data: {
+                    answer: args.answer
+                }
+            });
+
+            let allAnswers = await context.prisma.researchSuggestions.findMany({
+                where: {
+                    researchId: args.researchId
+                }
+            });
+            
+            allAnswers = allAnswers.map(item => item.answer);
+
+            const submittedAnswers = allAnswers.filter(answer => answer !== null);
+
+            if (allAnswers.length === submittedAnswers.length) {
+                await context.prisma.research.update({
+                    where: {
+                        id: args.researchId
+                    },
+                    data: {
+                        status: "Завершено",
+                        dateClosed: Date.now()
+                    }
+                });
+            }
+
+            return answer;
+        }
     },
     Research: {
         answers: (parent, args, context) => {
@@ -105,7 +176,10 @@ const resolvers = {
             const answers =  await context.prisma.research.findUnique({ where: { id: parent.id } }).answers();
 
             return answers.map(answer => answer.studentId);
-        }
+        },
+        template: (parent, args, context) => {
+            return context.prisma.research.findUnique({ where: { id: parent.id } }).template();
+        },
     },
     Student: {
         answers: (parent, args, context) => {

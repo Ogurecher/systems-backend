@@ -23,8 +23,8 @@ model Research {
     description     String
     template        ResearchTemplate    @relation(fields: [templateId], references: [id])
     templateId      Int
-    dateOpened      DateTime            @default(now())
-    dateClosed      DateTime?
+    dateOpened      Int
+    dateClosed      Int?
     status          String              @default("В работе")
     answers         ResearchSuggestions[]
 }
