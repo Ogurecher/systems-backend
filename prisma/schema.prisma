@@ -26,9 +26,20 @@ model Research {
     dateOpened      DateTime            @default(now())
     dateClosed      DateTime?
     status          String              @default("В работе")
+    answers         ResearchSuggestions[]
 }
 
 model Student {
     id              Int                 @id @default(autoincrement())
     name            String
+    answers         ResearchSuggestions[]
+}
+
+model ResearchSuggestions {
+    @@id([studentId, researchId])
+    student         Student             @relation(fields: [studentId], references: [id])
+    studentId       Int
+    research        Research            @relation(fields: [researchId], references: [id])
+    researchId      Int
+    answer          String?
 }

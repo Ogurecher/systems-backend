@@ -1,5 +1,5 @@
 type Query {
-    researchTemplatesList: [ResearchTemplate!]!
+    researchTemplateList: [ResearchTemplate!]!
     researchTemplate(id: Int!): ResearchTemplate
 
     researchList: [Research!]!
@@ -7,13 +7,16 @@ type Query {
 
     studentList: [Student!]!
     student(id: Int!): Student!
+
+    researchSuggestionsList: [ResearchSuggestions!]!
+    researchSuggestions(researchId: Int!): [ResearchSuggestions!]!
 }
 
 type Mutation {
     createResearchTemplate(name: String!, template: String!): ResearchTemplate!
     deleteResearchTemplate(id: Int!): ResearchTemplate
 
-    createResearch(title: String!, description: String!, templateId: Int!): Research!
+    createResearch(title: String!, description: String!, templateId: Int!, performers: [Int!]!): Research!
     deleteResearch(id: Int!): Research
 
     createStudent(name: String!): Student!
@@ -31,10 +34,21 @@ type Research {
     title: String!
     description: String!
     templateId: Int!
+    performers: [Int!]!
     status: String!
+    answers: [ResearchSuggestions!]!
 }
 
 type Student {
     id: Int!
     name: String!
+    answers: [ResearchSuggestions!]!
+}
+
+type ResearchSuggestions {
+    studentId: Int!
+    student: Student!
+    researchId: Int!
+    research: Research!
+    answer: String
 }

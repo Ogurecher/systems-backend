@@ -34,12 +34,20 @@ const createDeleteMutation = (entityName) => {
 
 const resolvers = {
     Query: {
-        researchTemplatesList: createGetQuery('researchTemplate'),
+        researchTemplateList:  createGetQuery('researchTemplate'),
         researchTemplate:      createGetByIdQuery('researchTemplate'),
         researchList:          createGetQuery('research'),
         research:              createGetByIdQuery('research'),
         studentList:           createGetQuery('student'),
-        student:               createGetByIdQuery('student')
+        student:               createGetByIdQuery('student'),
+        researchSuggestions:   async (parent, args, context) => {
+            return context.prisma.researchSuggestions.findMany({
+                where: {
+                    researchId: args.researchId
+                }
+            });
+        },
+        researchSuggestionsList: createGetQuery('researchSuggestions')
     },
     Mutation: {
         createResearchTemplate: (parent, args, context) => {
@@ -53,14 +61,27 @@ const resolvers = {
             return researchTemplate;
         },
         deleteResearchTemplate: createDeleteMutation('researchTemplate'),
-        createResearch: (parent, args, context) => {
-            const research = context.prisma.research.create({
+        createResearch: async (parent, args, context) => {
+            const research = await context.prisma.research.create({
                 data: {
                     title: args.title,
                     description: args.description,
-                    templateId: args.templateId
+                    templateId: args.templateId,
+                    answers: {
+                        create: args.performers.map(id => {
+                            return { studentId: id }
+                        })
+                    }
                 },
-            })
+            });
+
+            const researchSuggestions = await context.prisma.researchSuggestions.findMany({
+                where: {
+                    researchId: research.id
+                }
+            });
+
+            research.performers = researchSuggestions.map(researchAnswer => researchAnswer.studentId);
 
             return research;
         },
@@ -75,6 +96,43 @@ const resolvers = {
             return student;
         },
         deleteStudent: createDeleteMutation('student')
+    },
+    Research: {
+        answers: (parent, args, context) => {
+            return context.prisma.research.findUnique({ where: { id: parent.id } }).answers();
+        },
+        performers: async (parent, args, context) => {
+            const answers =  await context.prisma.research.findUnique({ where: { id: parent.id } }).answers();
+
+            return answers.map(answer => answer.studentId);
+        }
+    },
+    Student: {
+        answers: (parent, args, context) => {
+            return context.prisma.student.findUnique({ where: { id: parent.id } }).answers();
+        }
+    },
+    ResearchSuggestions: {
+        student: (parent, args, context) => {
+            return context.prisma.researchSuggestions.findUnique({
+                where: {
+                    studentId_researchId: {
+                        researchId: parent.researchId,
+                        studentId: parent.studentId
+                    }
+                }
+            }).student();
+        },
+        research: (parent, args, context) => {
+            return context.prisma.researchSuggestions.findUnique({
+                where: {
+                    studentId_researchId: {
+                        researchId: parent.researchId,
+                        studentId: parent.studentId
+                    }
+                }
+            }).research();
+        }
     }
 };
 
